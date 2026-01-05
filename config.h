@@ -1,0 +1,170 @@
+/*
+ *  CU sudo version 1.3.1
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 1, or (at your option)
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  Please send bugs, changes, problems to sudo-bugs.cs.colorado.edu
+ */
+
+/*
+ * config.h -- Manually configured for 2.11BSD on PDP-11
+ */
+
+/* Deal with ansi stuff reasonably.  */
+#undef __P
+#if defined(__cplusplus) || defined(__STDC__)
+#define __P(args) args
+#else
+#define __P(args) ()
+#endif
+
+/* New ANSI-style OS defs.  */
+#if defined(hpux) && !defined(__hpux)
+#define __hpux 1
+#endif /* hpux */
+
+#if defined(convex) && !defined(__convex__)
+#define __convex__ 1
+#endif /* convex */
+
+/* Define if on AIX 3.
+   System headers sometimes define this.
+   We just want to avoid a redefinition error message.  */
+#ifndef _ALL_SOURCE
+/* #undef _ALL_SOURCE */
+#endif
+
+/* Define if on ConvexOs.
+   System headers sometimes define this.
+   We just want to avoid a redefinition error message.  */
+#ifndef _CONVEX_SOURCE
+/* #undef _CONVEX_SOURCE */
+#endif
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+/* #undef uid_t */
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+/* #undef gid_t */
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+/* #undef mode_t */
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+/* #undef size_t */
+
+/* Define to be nil if C compiler doesn't support "const."  */
+/* #undef const */
+
+/* Define as the return type of signal handlers (int or void).  */
+#define RETSIGTYPE int
+
+/* Define if you have the ANSI C header files.  */
+/* #undef STDC_HEADERS */
+
+/* Define on System V Release 4 or Solaris 2.x.  */
+/* #undef SVR4 */
+#if defined(SVR4) && !defined(__svr4__)
+#define __svr4__
+#endif /* SVR4 */
+
+/* Define if you want to use the system getpass().  */
+/* #undef USE_GETPASS */
+
+/* Define if you have C2 security.  */
+/* #undef HAVE_C2_SECURITY */
+
+/* Define if you use AFS.  */
+/* #undef HAVE_AFS */
+
+/* Define if you use flex instead of lex.  */
+/* #undef HAVE_FLEX */
+
+/* Define if you have POSIX signals.  */
+/* #undef HAVE_SIGACTION */
+#ifdef HAVE_SIGACTION
+#define POSIX_SIGNALS
+#endif /* HAVE_SIGACTION */
+
+/* Define if you have tzset(3).  */
+#define HAVE_TZSET 1
+
+/* Define if you have getcwd(3).  */
+/* #undef HAVE_GETCWD */
+
+/* Define if you have getwd(3).  */
+#define HAVE_GETWD 1
+
+/* Define if you have strdup(3).  */
+/* #undef HAVE_STRDUP */
+
+/* Define if you have strchr(3).  */
+/* #undef HAVE_STRCHR */
+#if !defined(HAVE_STRCHR) && !defined(strchr)
+#define strchr index
+#endif
+
+/* Define if you have strrchr(3).  */
+/* #undef HAVE_STRRCHR */
+#if !defined(HAVE_STRRCHR) && !defined(strrchr)
+#define strrchr rindex
+#endif
+
+/* Define if you have memcpy(3).  */
+/* #undef HAVE_MEMCPY */
+#if !defined(HAVE_MEMCPY) && !defined(memcpy)
+#define memcpy(D, S, L) (bcopy(S, D, L))
+#endif
+
+/* Define if you have bzero(3).  */
+#define HAVE_BZERO 1
+#if !defined(HAVE_BZERO) && !defined(bzero)
+#define bzero(S, N) (memset((void *)S, 0, N))
+#endif
+
+/* Define if you have sysconf(3c). */
+/* #undef HAVE_SYSCONF */
+
+/* Define if you have putenv(3). */
+/* #undef HAVE_PUTENV */
+
+/* Define if you have setenv(3). */
+#define HAVE_SETENV 1
+
+/* Define if you have the <malloc.h> header file.  */
+/* #undef HAVE_MALLOC_H */
+
+/* Define if you have the <paths.h> header file.  */
+/* #undef HAVE_PATHS_H */
+
+/* Define if you have the <string.h> header file.  */
+/* #undef HAVE_STRING_H */
+
+/* Define if you have the <strings.h> header file.  */
+#if !defined(__convex__) && !defined(convex)
+#define HAVE_STRINGS_H 1
+#endif /* convex */
+
+/* Define if you have the <unistd.h> header file.  */
+#define HAVE_UNISTD_H 1
+
+/* Define if you have the <termio.h> header file.  */
+/* #undef HAVE_TERMIO_H */
+
+/* Define if you have the <termios.h> header file.  */
+/* #undef HAVE_TERMIOS_H */
+
+/* Define if you have the <sys/sockio.h> header file.  */
+/* #undef HAVE_SYS_SOCKIO_H */

@@ -1,0 +1,71 @@
+INSTALL NOTES
+
+0) Run the configure script, ie: "./configure".  See the SUPPORTED file
+   for a list of OS's sudo is known to work on.  Configure will generate
+   config.h, pathnames.h, Makefile and visudoers/Makefile.  You shouldn't
+   need to hand-edit the Makefiles but if you don't like configure's choice
+   of C compiler, yacc or lex programs you may want to.  You can also
+   use the --prefix flag to configure to install sudo/visudo in a place
+   other than /usr/local (ie: --prefix=/opt).
+
+   NOTE: if you use C2 security you need to use the --with-C2 flag to
+   configure.  Currently this only affects hpux, ultrix, and ConvexOS with
+   C2 security.  For hpux only, you can use --with-C2 if you are expecting
+   to migrate to C2 security later but it makes password lookups about
+   twice as slow.
+
+   NOTE2: if you use AFS, you need to run configure with --with-AFS
+
+1) Read sudo.h to enable/disable the options you may or may not want.
+
+2) Type make.  If configure did its job correctly there won't be any
+   problems.  If this doesn't work, take a look at the file PORTING for
+   tips on what might have gone wrong.  Please mail us if you have a
+   fix or if you are unable to come up with a fix (address at EOF).
+
+3) Do a make install (as root) to install sudo.  If you get an error
+   about setuid(0) failing, something went wrong with the install and
+   the permissions on sudo are wrong.  Sudo needs to run setuid root.
+   If you get this message, chances are it's not running setuid root.
+
+   You can also install various pieces the package via install-binaries,
+   install-man, install-sudoers.
+
+4) Customize /etc/sudoers for your site.  Read the man page and take a
+   look at sample.sudoers to see how to do this.
+
+5) You're done.
+
+A few notes:
+
+a) To use syslog with the ultrix version you may want to grab
+   and install pub/DEC/jtkohl-syslog-complete.tar.Z available from
+   gatekeeper.dec.com via anonymous ftp.  If you don't I'd suggest
+   logging to a separate file rather than using the 4.2BSD syslog()
+   that comes with ultrix.  The jtkohl syslog is a nice port of the
+   4.3 syslogd that is backwards compatible with the ultrix version.
+   I recommend it highly.
+
+b) visudo will *NOT* use the editor referred to by the EDITOR or
+   VISUAL environmental variables unless you define ENV_EDITOR in
+   sudo.h.  I like the feature, but it can be a security hole
+   if you don't know about it.  If you have EDITOR set to something
+   secure (ie: no shells or external commands) in the Makefile or
+   sudo.h you don't want to define ENV_EDITOR.  Note that vi (the default
+   editor) is anything *but* secure in this respect (and no, setting the
+   editor to a wrapper that sets the SHELL envar to /bin/true does *not*
+   make vi secure--you can change your shell from within vi).  If you
+   leave the default of vi, you really don't stand to lose anything by
+   defining ENV_EDITOR.
+
+c) If you have a sense of humor you may want to define USE_INSULTS to
+   get the insults from the "old" sudo when you enter an incorrect
+   password.  Beware, this feature causes some people to want to throw
+   their machine across the room and dash it to tiny pieces.
+   Sci fi fans may want to define HAL as well (see insults.h).
+
+d) If you are *not* running sendmail or some other mailer, you should
+   comment out the MAILER #define in sudo.h.
+
+Please send changes, bugs, security holes, and gripes to:
+    sudo-bugs@cs.colorado.edu

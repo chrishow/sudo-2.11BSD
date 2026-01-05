@@ -1,0 +1,175 @@
+#*
+#* CU sudo version 1.3.1 (based on Root Group sudo version 1.1)
+#*
+#* This software comes with no waranty whatsoever, use at your own risk.
+#*
+#* Please send bugs, changes, problems to sudo-bugs.cs.colorado.edu
+#*
+
+#*  sudo version 1.1 allows users to execute commands as root
+#*  Copyright (C) 1991  The Root Group, Inc.
+#*
+#*  This program is free software; you can redistribute it and/or modify
+#*  it under the terms of the GNU General Public License as published by
+#*  the Free Software Foundation; either version 1, or (at your option)
+#*  any later version.
+#*
+#*  This program is distributed in the hope that it will be useful,
+#*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#*  GNU General Public License for more details.
+#*
+#*  You should have received a copy of the GNU General Public License
+#*  along with this program; if not, write to the Free Software
+#*  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#*
+
+#### Start of system configuration section. ####
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+# Compiler & tools to use
+CC = @CC@
+LEX = @LEX@
+YACC = @YACC@
+NROFF = nroff
+
+# Which install program?
+INSTALL = @INSTALL@
+
+# Libraries
+LIBS = @LIBS@ @LEXLIB@
+
+# OS defines
+OSDEFS = @OSDEFS@
+
+# Usually -g or -O
+CFLAGS = -O @INC_FLAGS@
+
+# How to make a static binary
+LDFLAGS = @STATIC_FLAGS@
+
+# Where to install things...
+prefix = /usr/local
+exec_prefix = $(prefix)
+man_prefix = @MAN_PREFIX@
+
+# Directory in which to install sudo.
+sudodir = $(exec_prefix)/bin
+
+# Directory in which to install visudo
+visudodir = $(exec_prefix)/etc
+
+# Directory in which to install the sudoers file
+sudoersdir = /etc
+
+# Directory in which to install the man page
+mantype = @MANTYPE@
+manpage = sudo.$(mantype)
+mansect = 8
+mandir = $(man_prefix)/$(mantype)$(mansect)
+
+# User and Group the installed file should be owned by
+owner = root
+group = staff
+
+# See sudo.h for a list of options
+OPTIONS = @OPTIONS@
+
+#### End of system configuration section. ####
+
+SHELL = /bin/sh
+
+PROGS = @PROGS@
+
+SRCS = check.c find_path.c logging.c parse.c sudo.c sudo_realpath.c \
+       sudo_setenv.c parse.yacc parse.lex
+
+OBJS = check.o find_path.o logging.o parse.o sudo.o sudo_realpath.o \
+       sudo_setenv.o y.tab.o lex.yy.o
+
+LIBOBJS = @TGETPASS@ @LIBOBJS@
+
+HDRS = sudo.h version.h insults.h
+
+DISTFILES = $(SRCS) $(HDRS) BUGS CHANGES COPYING INSTALL Makefile.in PORTING \
+            README README.v1.3.1 SUPPORTED TODO aclocal.m4 getcwd.c putenv.c \
+            strdup.c tgetpass.c config.h.in configure configure.in indent.pro \
+	    installbsd pathnames.h.in sample.sudoers sudo.man sudo.cat sudoers \
+	    aixcrypt.exp visudoers/Makefile.in visudoers/config.h \
+	    visudoers/pathnames.h visudoers/sudo.h visudoers/version.h \
+	    visudoers/visudo.c visudoers/visudo.lex visudoers/visudo.yacc \
+	    visudoers/aixcrypt.exp
+
+all: $(PROGS)
+
+.SUFFIXES: .o .c .h .lex .yacc .man .cat
+
+.c.o:
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(OSDEFS) $(OPTIONS) -I$(srcdir) $<
+
+.man.cat:
+	$(NROFF) -man $< > $@
+
+sudo : $(OBJS) $(LIBOBJS)
+	$(CC) -o $@ $(OBJS) $(LIBOBJS) $(LDFLAGS) $(LIBS)
+
+y.tab.o y.tab.h: parse.yacc $(HDRS)
+	$(YACC) -d parse.yacc
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(OSDEFS) $(OPTIONS) -I$(srcdir) y.tab.c
+
+lex.yy.o: parse.lex y.tab.h $(HDRS)
+	$(LEX) parse.lex
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(OSDEFS) $(OPTIONS) -I$(srcdir) lex.yy.c
+
+$(OBJS) $(LIBOBJS) : $(HDRS)
+
+sudo.cat: sudo.man
+
+visudo :
+	( cd visudoers && make "OPTIONS=$(OPTIONS)" $@ )
+
+install: install-binaries install-sudoers install-man
+
+install-binaries: $(PROGS)
+	$(INSTALL) -o $(owner) -g $(group) -m 4111 -s sudo $(sudodir)/sudo
+	$(INSTALL) -o $(owner) -g $(group) -m 0111 -s visudoers/visudo $(visudodir)/visudo
+
+install-sudoers:
+	@ if [ -f $(sudoersdir)/sudoers ]; then  \
+	    echo "Will not overwrite existing $(sudoersdir)/sudoers file."; \
+	else \
+	    $(INSTALL) -o $(owner) -g $(group) -m 0400 sudoers $(sudoersdir)/sudoers; \
+	fi
+
+install-man:
+	$(INSTALL) -o $(owner) -g $(group) -m 0644 $(manpage) $(mandir)/sudo.$(mansect)
+	@MAN_POSTINSTALL@
+
+tags: $(SRCS)
+	ctags $(SRCS)
+
+TAGS: $(SRCS)
+	etags $(SRCS)
+
+clean:
+	-rm -f lex.yy.* y.tab.* *.o $(PROGS) core
+	( cd visudoers && make $@ )
+
+mostlyclean: clean
+
+distclean: clean
+	rm -f Makefile config.h pathnames.h config.status
+	( cd visudoers && rm -f Makefile )
+
+realclean: distclean
+	rm -f TAGS tags
+	( cd visudoers && rm -f TAGS tags )
+
+dist: $(DISTFILES)
+	rm -f ../cu-sudo.v1.3.1.tar.Z
+	( cd .. ; TF="/tmp/sudo.dist$$" ; rm -f $$TF ; for i in $(DISTFILES) ; \
+	  do echo sudo.v1.3.1/$$i >> $$TF ; done ; tar cf cu-sudo.v1.3.1.tar \
+	  `cat $$TF` && compress cu-sudo.v1.3.1.tar )
+	ls -l ../cu-sudo.v1.3.1.tar.Z
